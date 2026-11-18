@@ -1,0 +1,12 @@
+name = "sdsu-rag-human-eval-api"
+main = "src.js"
+compatibility_date = "2026-11-01"
+
+[vars]
+# Set to your exact GitHub Pages origin, WITHOUT trailing slash.
+ALLOWED_ORIGIN = "https://YOUR-GITHUB-USERNAME.github.io"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sdsu-rag-human-eval"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
