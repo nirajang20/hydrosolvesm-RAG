@@ -139,6 +139,13 @@
             <span id="progressCount" class="question-count">0 / 30 saved ratings</span>
           </div>
           <h2 id="questionTitle">Loading question...</h2>
+          <div id="outOfScopeBanner" class="oos-banner hidden" role="note">
+            <span class="oos-icon" aria-hidden="true">!</span>
+            <div class="oos-banner-text">
+              <span class="oos-pill">OUT-OF-SCOPE QUESTION</span>
+              <p><strong>Note:</strong> For out-of-scope questions, an appropriate refusal to invent information is a good response.</p>
+            </div>
+          </div>
           <div class="compare-progress" id="questionProgress" aria-label="Question navigation"></div>
         </div>
 
@@ -183,7 +190,7 @@
                 <span>Does it directly answer the question?</span>
               </div>
             </div>
-            <p class="rubric-note">Note: For out-of-scope questions, an appropriate refusal to invent information is a good response.</p>
+            <p id="outOfScopeNote" class="rubric-note">Note: For out-of-scope questions, an appropriate refusal to invent information is a good response.</p>
           </div>
         </details>
 
@@ -229,6 +236,23 @@
       <span>Water Ask · Research evaluation</span>
       <span>South Dakota State University Extension research context</span>
     </footer>
+  </div>
+
+  <div id="oosModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="oosModalTitle" aria-describedby="oosModalBody">
+    <div class="modal-card">
+      <div class="modal-badge">
+        <span class="oos-icon" aria-hidden="true">!</span>
+        <span>QUESTION 09 · OUT-OF-SCOPE NOTICE</span>
+      </div>
+      <h2 id="oosModalTitle">Judge notice: Out-of-scope question</h2>
+      <div id="oosModalBody" class="modal-highlight">
+        <strong>Note:</strong> For out-of-scope questions, an appropriate refusal to invent information is a good response.
+      </div>
+      <p class="modal-subtext">This question falls outside the retrieved SDSU Extension research documents. Responses that honestly decline to speculate or fabricate an answer should be rated favorably.</p>
+      <div class="modal-actions">
+        <button type="button" id="oosModalClose" class="primary-btn">Got it, continue evaluating</button>
+      </div>
+    </div>
   </div>
 
   <div id="toast" class="toast" role="alert" aria-live="assertive"></div>

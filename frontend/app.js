@@ -27,6 +27,20 @@
   let drafts = {};
   let busy = false;
   let toastTimer = null;
+  let lastOosPrompted = -1;
+
+  function openOosModal() {
+    const modal = $('oosModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    const closeBtn = $('oosModalClose');
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closeOosModal() {
+    const modal = $('oosModal');
+    if (modal) modal.classList.add('hidden');
+  }
 
   function msg(text) {
     const t = $('toast');
@@ -37,6 +51,8 @@
   }
 
   function show(view) {
+    closeOosModal();
+    if (view !== 'evaluation') lastOosPrompted = -1;
     document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
     $(view).classList.remove('hidden');
     window.scrollTo(0, 0);
@@ -350,9 +366,12 @@
 
   function render() {
     const group = questions[current];
+    const isOutOfScope = Boolean(group[0].out_of_scope) || current === 8;
     $('questionTitle').textContent = group[0].question;
     $('responseCounter').textContent = `QUESTION ${String(current + 1).padStart(2, '0')} OF 10`;
     $('progressCount').textContent = `${Object.keys(ratings).length} / 30 saved ratings`;
+    $('outOfScopeBanner').classList.toggle('hidden', !isOutOfScope);
+    $('outOfScopeNote').classList.toggle('is-highlighted', isOutOfScope);
 
     $('questionProgress').replaceChildren();
     for (let i = 0; i < 10; i++) {
@@ -477,6 +496,16 @@
     updateBottomFeedback();
     $('finalActions').classList.toggle('hidden', Object.keys(ratings).length !== 30);
     window.scrollTo(0, 0);
+
+    if (isOutOfScope) {
+      if (lastOosPrompted !== current) {
+        lastOosPrompted = current;
+        openOosModal();
+      }
+    } else {
+      lastOosPrompted = -1;
+      closeOosModal();
+    }
   }
 
   function changePage(index) {
@@ -681,6 +710,16 @@
       msg(e.message);
     } finally {
       b.disabled = false;
+    }
+  });
+
+  $('oosModalClose').addEventListener('click', closeOosModal);
+  $('oosModal').addEventListener('click', e => {
+    if (e.target === $('oosModal')) closeOosModal();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !$('oosModal').classList.contains('hidden')) {
+      closeOosModal();
     }
   });
 
