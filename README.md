@@ -5,7 +5,7 @@ A small static **GitHub Pages** frontend with a **Cloudflare Worker + D1** backe
 ## What's changed
 
 - **10 pages / 10 source questions**. Every page displays **three anonymous answers (Models A, B, C)** side by side, rather than 30 separate question screens.
-- Each anonymous answer has independently expandable retrieved sources, **four 1–5 scoring sliders**, and optional comments.
+- Each anonymous answer has independently expandable retrieved sources, **four 1–5 star ratings**, and optional comments.
 - Left panel explains Correctness, Groundedness, Completeness, Relevance. The out-of-scope question is still assessed for an appropriate evidence-limited refusal.
 - **Save all 3 & Next** stores three separate rating rows for that question in Cloudflare D1. Back, page progress, existing saved ratings, resume, and final submission work without changing the database schema.
 - Initials, full name, email, affiliation, and consent are collected in a separate registration page.
@@ -85,7 +85,7 @@ If you uploaded the frontend files directly into repo root rather than using a `
 1. Open public Pages link, click **Evaluate AI responses**.
 2. Register initials, full name, email and affiliation, and acknowledge the study notice.
 3. Each page shows one question with Models A/B/C. Judges read answers and expand supporting source excerpts when needed.
-4. **Each of four sliders must be touched** (including if assigning a score of 3) before a response can be saved. A default-looking midpoint is *not* an already selected score.
+4. **Each of four metrics must be rated (1–5 stars)** before a response can be saved. Stars start unselected until clicked.
 5. Click **Save all 3 & Next**. All three records save to D1; if a network request fails, successful saves remain and retry is possible.
 6. Judges may return to prior questions and revise ratings before final submission.
 7. After all 30 answers are saved, click **Submit evaluation**. The study is locked against further editing.

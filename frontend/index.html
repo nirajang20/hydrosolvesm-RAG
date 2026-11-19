@@ -1,32 +1,236 @@
 <!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0e4947"><meta name="description" content="SDSU Water Ask: human evaluation of AI-assisted water resource answers.">
-<title>Water Ask | Human Evaluation</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css"><script src="config.js"></script><script defer src="app.js"></script>
-</head><body>
-<div class="shell">
-<header class="site-header"><a class="brand" href="#" id="homeLink" aria-label="Water Ask Home"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 44 44" fill="none"><path d="M22 5c5 9 13 15 13 23a13 13 0 1 1-26 0C9 20 17 14 22 5Z" stroke="currentColor" stroke-width="2.4"/><path d="M15 29c1 4 4 6 8 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span><span>Water<span class="brand-accent">Ask</span><small>HUMAN EVALUATION PORTAL</small></span></a><div class="header-right"><span class="header-dot"></span><span>SDSU Extension Research</span><span class="header-tag">Research study</span></div></header>
-<main>
-<section id="landing" class="view"><div class="hero"><div class="eyebrow"><span class="pulse"></span> SOUTH DAKOTA WATER RESOURCES · RESEARCH STUDY</div><h1>Helping make water<br><em>research more accessible.</em></h1><p>Explore our Retrieval-Augmented Generation (RAG) project or help assess the quality of AI-generated answers using a simple, guided evaluation.</p></div>
-<div class="choice-grid"><a class="choice-card choice-learn" href="https://jackssdstate-my.sharepoint.com/:f:/g/personal/nirajan_ghimire_jacks_sdstate_edu/IgARyG3_3WVORIlcYuqxQpuQAceXx2828VriGo1oYmivia4?e=wcxKYQ" target="_blank" rel="noopener noreferrer"><span class="choice-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M24 10 4 20l20 10 20-10L24 10Z"/><path d="M11 25v9c9 7 17 7 26 0v-9"/><path d="M44 20v13"/></svg></span><span class="choice-index">01 / EXPLORE</span><h2>Learn about the RAG</h2><p>Learn how Water Ask retrieves SDSU Extension research and uses it to support water resource questions.</p><span class="choice-action">Explore project resources <span aria-hidden="true">↗</span></span></a>
-<button type="button" class="choice-card choice-eval" id="openEvaluation"><span class="choice-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="11" y="8" width="28" height="35" rx="5"/><path d="M19 8V5h12v3M18 20l3 3 5-6M18 33h14M28 21h5"/></svg></span><span class="choice-index">02 / PARTICIPATE</span><h2>Evaluate AI responses</h2><p>Compare three anonymized AI answers for each of 10 questions, review the evidence, and score each answer on four research metrics.</p><span class="choice-action">Begin evaluation <span aria-hidden="true">→</span></span></button></div>
-<div class="landing-footnote"><span>10 questions · 30 responses</span><span>4 evaluation dimensions</span><span>Anonymous model identities</span></div></section>
-<section id="register" class="view hidden narrow"><button class="back-link" data-goto="landing">← Back to home</button><div class="step-label">GETTING STARTED · STEP 01</div><h1 class="section-title">Evaluator information</h1><p class="section-subtitle">Before beginning, please enter your information. You'll compare three AI responses for each of 10 questions.</p><div class="notice"><div class="notice-title">Privacy and research use</div><p>Your name, email, and affiliation will be collected for research administration. Your evaluation scores will be analyzed and reported using a participant ID rather than your name or email. Identifying information will not be included in published results or publicly shared datasets. Access will be restricted to the authorized research team. Your survey progress is stored in Cloudflare's database.</p><p class="muted-small">Provide this notice only if it matches your actual research practices and any required ethics/IRB approval. Initials are not inherently anonymous.</p></div><form id="registerForm" class="form-card"><div class="field-row"><label>Judge initials <span>*</span><input name="initials" required minlength="2" maxlength="12" autocomplete="off" placeholder="e.g., NG"></label><label>Full name <span>*</span><input name="full_name" required maxlength="120" autocomplete="name" placeholder="Your full name"></label></div><div class="field-row"><label>Email address <span>*</span><input name="email" type="email" required maxlength="254" autocomplete="email" placeholder="name@university.edu"></label><label>Institutional affiliation <span>*</span><input name="affiliation" required maxlength="200" autocomplete="organization" placeholder="e.g., South Dakota State University"></label></div><label class="check-label"><input name="consent" type="checkbox" required><span>I have read the information above and agree to take part in this evaluation.</span></label><div class="form-footer"><p>Your scores can be saved and resumed later on this device.</p><button type="submit" class="primary-btn" id="registerBtn">Continue to evaluation <span>→</span></button></div></form></section>
-<section id="evaluation" class="view hidden">
-  <div class="compare-intro"><div><span class="step-label">BLINDED HUMAN EVALUATION</span><h1 class="section-title">Compare AI responses</h1><p class="section-subtitle">Rate each response independently against the retrieved evidence. Model identities are concealed.</p></div><button id="exitEval" class="outline-btn">Save & exit</button></div>
-  <div class="compare-question"><div class="compare-question-top"><span id="responseCounter" class="eval-eyebrow">QUESTION 01 OF 10</span><span id="progressCount" class="question-count">0 / 30 saved ratings</span></div><h2 id="questionTitle">Loading question...</h2><div class="compare-progress" id="questionProgress"></div></div>
-  <div class="compare-grid">
-    <aside class="metric-guide compare-panel"><div class="compare-panel-title">📋 &nbsp; Evaluation guide</div><div class="guide-inner"><div class="guide-item"><strong>Correctness</strong><span>How factually accurate is the response?</span></div><div class="guide-item"><strong>Groundedness</strong><span>Are important claims supported by the retrieved sources?</span></div><div class="guide-item"><strong>Completeness</strong><span>Does it cover all important parts of the question?</span></div><div class="guide-item"><strong>Relevance</strong><span>Does it directly answer the question?</span></div></div><div class="guide-scale"><b>Rating scale</b><div>1 · Very poor</div><div>2 · Poor</div><div>3 · Fair</div><div>4 · Good</div><div>5 · Excellent</div><small>For out-of-scope questions, an appropriate refusal to invent information is a good response.</small></div></aside>
-    <div id="modelColumns" class="compare-models"></div>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0e4947">
+  <meta name="description" content="SDSU Water Ask: human evaluation of AI-assisted water resource answers.">
+  <title>Water Ask | Human Evaluation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="site-header">
+      <a class="brand" href="#" id="homeLink" aria-label="Water Ask Home">
+        <span class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 44 44" fill="none">
+            <path d="M22 5c5 9 13 15 13 23a13 13 0 1 1-26 0C9 20 17 14 22 5Z" stroke="currentColor" stroke-width="2.4"/>
+            <path d="M15 29c1 4 4 6 8 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span>
+          Water<span class="brand-accent">Ask</span>
+          <small>HUMAN EVALUATION PORTAL</small>
+        </span>
+      </a>
+      <div class="header-right">
+        <span class="header-dot"></span>
+        <span>SDSU Extension Research</span>
+        <span class="header-tag">Research study</span>
+      </div>
+    </header>
+
+    <main>
+      <section id="landing" class="view">
+        <div class="hero">
+          <div class="eyebrow"><span class="pulse"></span> SOUTH DAKOTA WATER RESOURCES · RESEARCH STUDY</div>
+          <h1>Helping make water<br><em>research more accessible.</em></h1>
+          <p>Explore our Retrieval-Augmented Generation (RAG) project or help assess the quality of AI-generated answers using a simple, guided evaluation.</p>
+        </div>
+
+        <div class="choice-grid">
+          <a class="choice-card choice-learn" href="https://jackssdstate-my.sharepoint.com/:f:/g/personal/nirajan_ghimire_jacks_sdstate_edu/IgARyG3_3WVORIlcYuqxQpuQAceXx2828VriGo1oYmivia4?e=wcxKYQ" target="_blank" rel="noopener noreferrer">
+            <span class="choice-icon">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M24 10 4 20l20 10 20-10L24 10Z"/>
+                <path d="M11 25v9c9 7 17 7 26 0v-9"/>
+                <path d="M44 20v13"/>
+              </svg>
+            </span>
+            <span class="choice-index">01 / EXPLORE</span>
+            <h2>Learn about the RAG</h2>
+            <p>Learn how Water Ask retrieves SDSU Extension research and uses it to support water resource questions.</p>
+            <span class="choice-action">Explore project resources <span aria-hidden="true">↗</span></span>
+          </a>
+
+          <button type="button" class="choice-card choice-eval" id="openEvaluation">
+            <span class="choice-icon">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="11" y="8" width="28" height="35" rx="5"/>
+                <path d="M19 8V5h12v3M18 20l3 3 5-6M18 33h14M28 21h5"/>
+              </svg>
+            </span>
+            <span class="choice-index">02 / PARTICIPATE</span>
+            <h2>Evaluate AI responses</h2>
+            <p>Compare three anonymized AI answers for each of 10 questions, review the evidence, and rate each answer from 1 to 5 stars across four research metrics.</p>
+            <span class="choice-action">Begin evaluation <span aria-hidden="true">→</span></span>
+          </button>
+        </div>
+
+        <div class="landing-footnote">
+          <span>10 questions · 30 responses</span>
+          <span>4 evaluation dimensions (1–5 stars)</span>
+          <span>Anonymous model identities</span>
+        </div>
+      </section>
+
+      <section id="register" class="view hidden narrow">
+        <button type="button" class="back-link" data-goto="landing">← Back to home</button>
+        <div class="step-label">GETTING STARTED · STEP 01</div>
+        <h1 class="section-title">Evaluator information</h1>
+        <p class="section-subtitle">Before beginning, please enter your information. You'll compare three AI responses for each of 10 questions.</p>
+
+        <div class="notice">
+          <div class="notice-title">Privacy and research use</div>
+          <p>Your name, email, and affiliation will be collected for research administration. Your evaluation scores will be analyzed and reported using a participant ID rather than your name or email. Identifying information will not be included in published results or publicly shared datasets. Access will be restricted to the authorized research team. Your survey progress is stored in Cloudflare's database.</p>
+          <p class="muted-small">Provide this notice only if it matches your actual research practices and any required ethics/IRB approval. Initials are not inherently anonymous.</p>
+        </div>
+
+        <form id="registerForm" class="form-card">
+          <div class="field-row">
+            <label>
+              Judge initials <span>*</span>
+              <input name="initials" required minlength="2" maxlength="12" autocomplete="off" placeholder="e.g., NG">
+            </label>
+            <label>
+              Full name <span>*</span>
+              <input name="full_name" required maxlength="120" autocomplete="name" placeholder="Your full name">
+            </label>
+          </div>
+          <div class="field-row">
+            <label>
+              Email address <span>*</span>
+              <input name="email" type="email" required maxlength="254" autocomplete="email" placeholder="name@university.edu">
+            </label>
+            <label>
+              Institutional affiliation <span>*</span>
+              <input name="affiliation" required maxlength="200" autocomplete="organization" placeholder="e.g., South Dakota State University">
+            </label>
+          </div>
+          <label class="check-label">
+            <input name="consent" type="checkbox" required>
+            <span>I have read the information above and agree to take part in this evaluation.</span>
+          </label>
+          <div class="form-footer">
+            <p>Your scores can be saved and resumed later on this device.</p>
+            <button type="submit" class="primary-btn" id="registerBtn">Continue to evaluation <span>→</span></button>
+          </div>
+        </form>
+      </section>
+
+      <section id="evaluation" class="view hidden">
+        <div class="compare-intro">
+          <div>
+            <span class="step-label">BLINDED HUMAN EVALUATION</span>
+            <h1 class="section-title">Compare AI responses</h1>
+            <p class="section-subtitle">Rate each response independently against the retrieved evidence using 1–5 stars. Model identities are concealed.</p>
+          </div>
+          <button type="button" id="exitEval" class="outline-btn">Exit to home</button>
+        </div>
+
+        <div class="compare-question">
+          <div class="compare-question-top">
+            <span id="responseCounter" class="eval-eyebrow">QUESTION 01 OF 10</span>
+            <span id="progressCount" class="question-count">0 / 30 saved ratings</span>
+          </div>
+          <h2 id="questionTitle">Loading question...</h2>
+          <div class="compare-progress" id="questionProgress" aria-label="Question navigation"></div>
+        </div>
+
+        <details class="rubric-bar" open>
+          <summary class="rubric-summary">
+            <span class="rubric-heading">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="4" y="3" width="12" height="14" rx="2"/>
+                <path d="M7 7h6M7 10.5h6M7 14h4"/>
+              </svg>
+              Evaluation guide
+            </span>
+            <span class="rubric-scale-pills" aria-label="Star rating scale">
+              <span><strong>★ 1</strong> Very poor</span>
+              <span><strong>★ 2</strong> Poor</span>
+              <span><strong>★ 3</strong> Fair</span>
+              <span><strong>★ 4</strong> Good</span>
+              <span><strong>★ 5</strong> Excellent</span>
+            </span>
+            <span class="rubric-toggle" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 8 4 4 4-4"/>
+              </svg>
+            </span>
+          </summary>
+          <div class="rubric-body">
+            <div class="rubric-metrics">
+              <div class="rubric-item">
+                <strong>Correctness</strong>
+                <span>How factually accurate is the response?</span>
+              </div>
+              <div class="rubric-item">
+                <strong>Groundedness</strong>
+                <span>Are important claims supported by the retrieved sources?</span>
+              </div>
+              <div class="rubric-item">
+                <strong>Completeness</strong>
+                <span>Does it cover all important parts of the question?</span>
+              </div>
+              <div class="rubric-item">
+                <strong>Relevance</strong>
+                <span>Does it directly answer the question?</span>
+              </div>
+            </div>
+            <p class="rubric-note">Note: For out-of-scope questions, an appropriate refusal to invent information is a good response.</p>
+          </div>
+        </details>
+
+        <div id="modelColumns" class="compare-models"></div>
+
+        <div class="compare-bottom">
+          <button type="button" class="outline-btn" id="prevBtn">← Previous question</button>
+          <div class="save-feedback" id="saveFeedback" role="status" aria-live="polite"></div>
+          <button type="button" class="primary-btn" id="saveNextBtn">Save all 3 &amp; next →</button>
+        </div>
+
+        <div id="finalActions" class="final-actions hidden">
+          <div>
+            <strong>All 30 responses are saved.</strong>
+            <p>Review your star ratings before final submission; submitted evaluations cannot be changed.</p>
+          </div>
+          <button type="button" id="submitBtn" class="primary-btn">Submit evaluation ✓</button>
+        </div>
+      </section>
+
+      <section id="complete" class="view hidden narrow completion">
+        <div class="completion-mark">✓</div>
+        <span class="step-label">EVALUATION SUBMITTED</span>
+        <h1>Thank you for contributing.</h1>
+        <p>Your evaluation has been securely submitted. Your answers will help the research team compare AI-generated responses and improve the quality of evidence-grounded water information.</p>
+        <div class="receipt">
+          <span>Participant ID</span>
+          <strong id="receiptId"></strong>
+        </div>
+        <button type="button" class="outline-btn" data-goto="landing">Return to home</button>
+      </section>
+
+      <section id="setup" class="view hidden narrow">
+        <div class="notice">
+          <h2>Setup required</h2>
+          <p id="setupError">This site needs an evaluation packet and Cloudflare API URL before it can accept responses.</p>
+          <button type="button" data-goto="landing" class="outline-btn">Back to home</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Water Ask · Research evaluation</span>
+      <span>South Dakota State University Extension research context</span>
+    </footer>
   </div>
-  <div class="compare-bottom"><button class="outline-btn" id="prevBtn">← Back</button><div class="save-feedback" id="saveFeedback" role="status" aria-live="polite"></div><button class="primary-btn" id="saveNextBtn">Save all 3 & next →</button></div>
-  <div id="finalActions" class="final-actions hidden"><p>All 30 responses are saved. Review your scores before final submission; submitted evaluations cannot be changed.</p><button id="submitBtn" class="primary-btn">Submit evaluation ✓</button></div>
-</section>
-<section id="complete" class="view hidden narrow completion"><div class="completion-mark">✓</div><span class="step-label">EVALUATION SUBMITTED</span><h1>Thank you for contributing.</h1><p>Your evaluation has been securely submitted. Your answers will help the research team compare AI-generated responses and improve the quality of evidence-grounded water information.</p><div class="receipt"><span>Participant ID</span><strong id="receiptId"></strong></div><button class="outline-btn" data-goto="landing">Return to home</button></section>
-<section id="setup" class="view hidden narrow"><div class="notice"><h2>Setup required</h2><p id="setupError">This site needs an evaluation packet and Cloudflare API URL before it can accept responses.</p><button data-goto="landing" class="outline-btn">Back to home</button></div></section>
-</main><footer class="site-footer"><span>Water Ask · Research evaluation</span><span>South Dakota State University Extension research context</span></footer>
-</div><div id="toast" class="toast" role="alert" aria-live="assertive"></div>
-</body></html>
+
+  <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+</body>
+</html>
