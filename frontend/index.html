@@ -255,6 +255,24 @@
     </div>
   </div>
 
+  <div id="submitModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="submitModalTitle" aria-describedby="submitModalBody">
+    <div class="modal-card modal-card-submit">
+      <div class="modal-badge modal-badge-submit">
+        <span class="submit-icon" aria-hidden="true">✓</span>
+        <span>ALL 10 QUESTIONS SAVED · 30 / 30</span>
+      </div>
+      <h2 id="submitModalTitle">Do you want to submit or go back?</h2>
+      <div id="submitModalBody" class="modal-highlight modal-highlight-submit">
+        All 30 responses have been saved to the database. Submit your evaluation now, or go back to review your star ratings and comments first.
+      </div>
+      <p class="modal-subtext">Once submitted, your evaluation is finalized and scores can no longer be edited.</p>
+      <div class="modal-actions">
+        <button type="button" id="submitModalBack" class="outline-btn">← Go back &amp; review</button>
+        <button type="button" id="submitModalConfirm" class="primary-btn">Submit evaluation ✓</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
 </body>
 </html>

@@ -26,6 +26,7 @@
   let ratings = {};
   let drafts = {};
   let busy = false;
+  let submitting = false;
   let toastTimer = null;
   let lastOosPrompted = -1;
 
@@ -42,6 +43,58 @@
     if (modal) modal.classList.add('hidden');
   }
 
+  function openSubmitModal() {
+    closeOosModal();
+    const modal = $('submitModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    const confirmBtn = $('submitModalConfirm');
+    if (confirmBtn) confirmBtn.focus();
+  }
+
+  function closeSubmitModal() {
+    if (submitting) return;
+    const modal = $('submitModal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  async function submitEvaluation() {
+    if (submitting) return;
+    if (Object.keys(ratings).length !== 30) {
+      msg('Save all 30 ratings before submitting.');
+      return;
+    }
+
+    submitting = true;
+    const submitBtn = $('submitBtn');
+    const confirmBtn = $('submitModalConfirm');
+    const backBtn = $('submitModalBack');
+    if (submitBtn) submitBtn.disabled = true;
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Submitting…';
+    }
+    if (backBtn) backBtn.disabled = true;
+
+    try {
+      const res = await api('/api/submit', 'POST');
+      submitting = false;
+      closeSubmitModal();
+      $('receiptId').textContent = res.participant_id;
+      show('complete');
+    } catch (e) {
+      msg(e.message);
+    } finally {
+      submitting = false;
+      if (submitBtn) submitBtn.disabled = false;
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Submit evaluation ✓';
+      }
+      if (backBtn) backBtn.disabled = false;
+    }
+  }
+
   function msg(text) {
     const t = $('toast');
     t.textContent = text;
@@ -52,6 +105,7 @@
 
   function show(view) {
     closeOosModal();
+    closeSubmitModal();
     if (view !== 'evaluation') lastOosPrompted = -1;
     document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
     $(view).classList.remove('hidden');
@@ -663,12 +717,15 @@
       }
 
       const savedQuestionNum = current + 1;
-      if (current < 9) current++;
+      const allDone = Object.keys(ratings).length === 30;
+      if (!allDone && current < 9) current++;
       busy = false;
       render();
 
-      if (Object.keys(ratings).length === 30) {
-        msg('All 30 responses saved. You may now submit your evaluation.');
+      if (allDone) {
+        openSubmitModal();
+      } else if (savedQuestionNum === 10) {
+        msg(`Question 10 saved. Please complete all 10 questions (${Object.keys(ratings).length}/30 saved) before submitting.`);
       } else {
         msg(`Question ${savedQuestionNum} saved.`);
       }
@@ -693,24 +750,18 @@
     show('landing');
   });
 
-  $('submitBtn').addEventListener('click', async () => {
+  $('submitBtn').addEventListener('click', () => {
     if (Object.keys(ratings).length !== 30) {
       msg('Save all 30 ratings before submitting.');
       return;
     }
-    if (!confirm('Submit all 30 evaluations? You cannot edit scores afterward.')) return;
+    openSubmitModal();
+  });
 
-    const b = $('submitBtn');
-    b.disabled = true;
-    try {
-      const res = await api('/api/submit', 'POST');
-      $('receiptId').textContent = res.participant_id;
-      show('complete');
-    } catch (e) {
-      msg(e.message);
-    } finally {
-      b.disabled = false;
-    }
+  $('submitModalConfirm').addEventListener('click', submitEvaluation);
+  $('submitModalBack').addEventListener('click', closeSubmitModal);
+  $('submitModal').addEventListener('click', e => {
+    if (e.target === $('submitModal')) closeSubmitModal();
   });
 
   $('oosModalClose').addEventListener('click', closeOosModal);
@@ -718,7 +769,10 @@
     if (e.target === $('oosModal')) closeOosModal();
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && !$('oosModal').classList.contains('hidden')) {
+    if (e.key !== 'Escape') return;
+    if (!$('submitModal').classList.contains('hidden')) {
+      closeSubmitModal();
+    } else if (!$('oosModal').classList.contains('hidden')) {
       closeOosModal();
     }
   });

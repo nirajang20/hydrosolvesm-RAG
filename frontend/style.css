@@ -1334,6 +1334,35 @@ textarea:focus {
 .modal-actions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.modal-card-submit {
+  border-top-color: var(--green);
+}
+
+.modal-badge-submit {
+  color: #116653;
+}
+
+.submit-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  flex: none;
+}
+
+.modal-highlight-submit {
+  background: #edf7f2;
+  border-color: #bfe0d1;
+  color: #18443b;
 }
 
 /* Toast */
