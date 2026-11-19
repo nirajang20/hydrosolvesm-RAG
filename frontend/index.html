@@ -123,6 +123,87 @@
         </form>
       </section>
 
+      <section id="guidelines" class="view hidden narrow">
+        <button type="button" class="back-link" data-goto="landing">← Back to home</button>
+        <div class="step-label">GETTING STARTED · STEP 02</div>
+        <h1 class="section-title">Evaluation Guidelines</h1>
+        <p class="section-subtitle">Please review these instructions carefully before evaluating the AI responses.</p>
+
+        <div class="guidelines-card">
+          <ol class="guidelines-list">
+            <li class="guideline-item">
+              <span class="guideline-num" aria-hidden="true">01</span>
+              <div class="guideline-content">
+                <h2>Review the question</h2>
+                <p>Read each question carefully before evaluating the responses.</p>
+              </div>
+            </li>
+
+            <li class="guideline-item">
+              <span class="guideline-num" aria-hidden="true">02</span>
+              <div class="guideline-content">
+                <h2>Compare the responses</h2>
+                <p>Three anonymous AI-generated answers are displayed side by side. Evaluate each independently, even if they are similar.</p>
+              </div>
+            </li>
+
+            <li class="guideline-item">
+              <span class="guideline-num" aria-hidden="true">03</span>
+              <div class="guideline-content">
+                <h2>Check out the sources</h2>
+                <p>Expand the retrieved sources to verify whether the answers are supported by the provided evidence.</p>
+              </div>
+            </li>
+
+            <li class="guideline-item">
+              <span class="guideline-num" aria-hidden="true">04</span>
+              <div class="guideline-content">
+                <h2>Rate each response (1–5)</h2>
+                <div class="guideline-metrics">
+                  <div class="guideline-metric">
+                    <strong>Correctness</strong>
+                    <span>Is the information factually accurate?</span>
+                  </div>
+                  <div class="guideline-metric">
+                    <strong>Groundedness</strong>
+                    <span>Is the answer supported by the retrieved sources?</span>
+                  </div>
+                  <div class="guideline-metric">
+                    <strong>Completeness</strong>
+                    <span>Does it cover the important information?</span>
+                  </div>
+                  <div class="guideline-metric">
+                    <strong>Relevance</strong>
+                    <span>Does it directly address the question?</span>
+                  </div>
+                </div>
+              </div>
+            </li>
+
+            <li class="guideline-item guideline-item-oos">
+              <span class="guideline-num" aria-hidden="true">05</span>
+              <div class="guideline-content">
+                <h2>Out-of-scope questions</h2>
+                <p>Some questions, such as &ldquo;What is the weather the next day?&rdquo;, intentionally fall outside the knowledge base. Evaluate whether the AI acknowledges its limitations rather than providing unsupported information.</p>
+              </div>
+            </li>
+
+            <li class="guideline-item">
+              <span class="guideline-num" aria-hidden="true">06</span>
+              <div class="guideline-content">
+                <h2>Submit</h2>
+                <p>Complete all 10 questions, rating three responses per question, and submit your evaluation.</p>
+              </div>
+            </li>
+          </ol>
+
+          <div class="form-footer">
+            <p>You can revisit the rating scale anytime from the Evaluation guide bar.</p>
+            <button type="button" class="primary-btn" id="startEvalBtn">Start evaluating <span>→</span></button>
+          </div>
+        </div>
+      </section>
+
       <section id="evaluation" class="view hidden">
         <div class="compare-intro">
           <div>

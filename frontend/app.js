@@ -679,13 +679,17 @@
       ratings = {};
       drafts = {};
       current = 0;
-      show('evaluation');
-      render();
+      show('guidelines');
     } catch (err) {
       msg(err.message);
     } finally {
       $('registerBtn').disabled = false;
     }
+  });
+
+  $('startEvalBtn').addEventListener('click', () => {
+    show('evaluation');
+    render();
   });
 
   $('prevBtn').addEventListener('click', () => changePage(current - 1));
