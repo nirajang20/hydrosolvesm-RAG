@@ -1,38 +1,57 @@
-# SDSU Water Ask · Human Evaluation Website
+# SDSU Water Ask — Side-by-Side Human Evaluation Portal
 
-A static GitHub Pages frontend with a Cloudflare Worker + D1 backend. No framework, no build step, no server for the frontend. The study presents **30 blinded candidate answers** (10 questions × 3 models), four 1–5 rating dimensions, expandable retrieved-source excerpts, and optional comments. Evaluators enter initials, name, email, affiliation, and acknowledge the research privacy notice.
+A small static **GitHub Pages** frontend with a **Cloudflare Worker + D1** backend. The landing page has two choices: **Learn about the RAG** (links to the provided SharePoint folder), and **Evaluate AI responses**.
 
-## Architecture
+## What's changed
 
-- `frontend/`: public GitHub Pages site; two large homepage choices: project-learning SharePoint link and **Evaluate Responses**.
-- `worker/`: Cloudflare Worker API storing evaluator information and ratings in D1, with bearer resume tokens.
-- `scripts/build_packet.py`: converts `human_judge_10_packet.json` into **public, blinded** `frontend/data/evaluations.json` and a **private** position mapping.
-- Cloudflare **D1** is the database; no Cloudflare API keys appear in frontend JavaScript.
-- **Do not publish** GPT-OSS results, the original private model key, name/email exports, or `private_mapping_DO_NOT_PUBLISH.json`.
+- **10 pages / 10 source questions**. Every page displays **three anonymous answers (Models A, B, C)** side by side, rather than 30 separate question screens.
+- Each anonymous answer has independently expandable retrieved sources, **four 1–5 scoring sliders**, and optional comments.
+- Left panel explains Correctness, Groundedness, Completeness, Relevance. The out-of-scope question is still assessed for an appropriate evidence-limited refusal.
+- **Save all 3 & Next** stores three separate rating rows for that question in Cloudflare D1. Back, page progress, existing saved ratings, resume, and final submission work without changing the database schema.
+- Initials, full name, email, affiliation, and consent are collected in a separate registration page.
+- LLM model identities and GPT-OSS judge results are **never placed in the public data file**.
 
-## 1. Generate the 30 survey items (locally)
+## Project layout
 
-After running your existing `llm_judge_10.py`:
-
-```powershell
-cd D:\Hydrology_SE\human
-python build_packet.py --input "D:\Hydrology_SE\human\human_judge_10_packet.json"
+```text
+frontend/
+  index.html               Static site with home, register, comparison and completion screens
+  style.css                Responsive side-by-side layout
+  app.js                   Frontend survey state and D1 API client
+  config.js                Put your Worker URL here
+  data/evaluations.json    Public blinded evaluation content, generated locally
+worker/
+  src.js                   Worker API: session, rating save, submit
+  schema.sql               D1 participants and ratings tables
+  wrangler.toml            Worker/D1 settings
+scripts/
+  build_packet.py          Converts existing blinded human packet to public site data
+  export_join.py           Joins D1 export + private mapping + LLM key
+.github/workflows/deploy.yml
 ```
 
-`build_packet.py` lives in this project's `scripts` directory, so from that directory run:
+## 1. Generate the live evaluation packet (on your Windows PC)
+
+Copy the extracted project to a convenient location, for example `D:\Hydrology_SE\sdsu-rag-human-eval`. From that directory run:
 
 ```powershell
-cd D:\Hydrology_SE\sdsu-rag-human-eval
 python scripts\build_packet.py --input "D:\Hydrology_SE\human\human_judge_10_packet.json"
 ```
 
-Output: `frontend/data/evaluations.json`, containing real questions, real responses, numbered source excerpts, and **no model labels**. The script requires exactly 30 responses and will stop on missing data. The private mapping is written to `private_mapping_DO_NOT_PUBLISH.json` in this project root. This file is gitignored.
+This reads the blinded packet from the `llm_judge_10.py` pipeline and creates:
 
-**IMPORTANT:** The original RAG packet shares retrieved excerpts among the three answers to a question because retrieval is model-independent in your backend. The website preserves this design. The intentionally out-of-scope question (`link: null`) is shown to human judges without labeling it out-of-scope, to preserve independent evaluation. If there are no excerpts, that is disclosed.
+- `frontend/data/evaluations.json`: **safe to publish**; includes 10 questions / 30 answers, sources, `position`, `sn`, anonymous `response_id`.
+- `private_mapping_DO_NOT_PUBLISH.json`: **NEVER upload or commit**; position -> `sn` / anonymous `response_id`.
 
-## 2. Configure Cloudflare D1 and Worker
+Keep `D:\Hydrology_SE\human\human_judge_10_model_key.json` **private** as well; it maps `(sn, response_id)` to actual model. Both mappings together identify the original model for each position. **Do not rerun the converter or reorder responses after evaluators begin**, because saved D1 `position` values must keep referring to exactly the same response.
 
-Install Node.js (18+), then in this project's `worker/` directory:
+Your own private `human_judge_10_model_key.json` contains the real model names. A public response's displayed A/B/C position uses the original order from the blinded packet. Positions are 1–3 for question 1, 4–6 for question 2, and so on; model identities must always be found from the private key, not assumed from their position.
+
+## 2. Cloudflare Worker + D1 (no new migration needed if already deployed)
+
+The old D1 `participants` and `ratings` schema is **unchanged**. Each of the three ratings submitted from a question page is still stored separately with its unique `position` (1 to 30).
+
+First-time setup:
 
 ```powershell
 cd worker
@@ -40,96 +59,59 @@ npx wrangler login
 npx wrangler d1 create sdsu-rag-human-eval
 ```
 
-Copy the returned `database_id` into `worker/wrangler.toml`, replacing `REPLACE_WITH_D1_DATABASE_ID`.
-
-Set `ALLOWED_ORIGIN` to the **exact frontend origin**. For a normal GitHub Pages repo it will be `https://YOUR-GITHUB-USERNAME.github.io` (without a repo path). For a custom domain set that domain instead. This is a CORS allowlist, not user authentication.
+Paste the returned `database_id` into `worker/wrangler.toml`. Set `ALLOWED_ORIGIN` in `wrangler.toml` to the exact GitHub Pages site origin (e.g. `https://username.github.io`, without the repo path), then:
 
 ```powershell
 npx wrangler d1 execute sdsu-rag-human-eval --remote --file=./schema.sql
 npx wrangler deploy
 ```
 
-Record the deployed URL, e.g. `https://sdsu-rag-human-eval-api.YOUR-SUBDOMAIN.workers.dev`.
+If you already deployed the Worker and D1, **you do not need to recreate the database or change its tables**. Just ensure the Worker remains accessible and the `ALLOWED_ORIGIN` matches your GitHub Pages host.
 
-Edit `frontend/config.js` with this exact URL (without trailing slash):
+## 3. Configure the GitHub Pages frontend
 
-```js
-window.EVAL_API_BASE = 'https://sdsu-rag-human-eval-api.YOUR-SUBDOMAIN.workers.dev';
+In `frontend/config.js`, set:
+
+```javascript
+window.EVAL_API_BASE = 'https://YOUR-REAL-WORKER.YOUR-SUBDOMAIN.workers.dev';
 ```
 
-## 3. Publish site with GitHub Pages
+Upload the whole repository, including `.github/workflows/deploy.yml`, to GitHub (but **not private mapping, model keys, or GPT-OSS results**). In **Settings → Pages**, set **Source = GitHub Actions**. On push to `main`, the workflow deploys only `frontend/` (HTML/CSS/JS/data), not the Worker source, private mapping, or any research keys.
 
-Create a new **public** GitHub repository. Commit the **contents of `frontend/`** to the GitHub repository's root. This keeps the Cloudflare backend source and private files off the public site.
+If you uploaded the frontend files directly into repo root rather than using a `frontend/` folder, move them under `frontend/` to match the workflow.
 
-In GitHub: **Settings → Pages → Build and deployment → Deploy from a branch → main / (root)**, and save. The site will be at:
+## 4. Evaluation process
 
-`https://YOUR-GITHUB-USERNAME.github.io/YOUR-REPO-NAME/`
+1. Open public Pages link, click **Evaluate AI responses**.
+2. Register initials, full name, email and affiliation, and acknowledge the study notice.
+3. Each page shows one question with Models A/B/C. Judges read answers and expand supporting source excerpts when needed.
+4. **Each of four sliders must be touched** (including if assigning a score of 3) before a response can be saved. A default-looking midpoint is *not* an already selected score.
+5. Click **Save all 3 & Next**. All three records save to D1; if a network request fails, successful saves remain and retry is possible.
+6. Judges may return to prior questions and revise ratings before final submission.
+7. After all 30 answers are saved, click **Submit evaluation**. The study is locked against further editing.
 
-GitHub Pages serves the `index.html`, `style.css`, `app.js`, `config.js`, and `data/evaluations.json` files. No server credentials are published.
+For the study, test with one participant first and verify one submission creates 30 rows in `ratings`.
 
-### Important: GitHub Pages is publicly readable
+## 5. Export and analyze collected scores
 
-Anyone who knows your published URL can read the blinded 30 candidate answers and retrieved source excerpts. **Do not upload evaluator data, model-identification keys, or confidential source material.** Make sure your source excerpts may be published in this context. The Cloudflare Worker validates the allowed browser origin and uses per-participant bearer tokens for data access, but this setup is intended for a small supervised research pilot, not high-assurance identity verification or abuse resistance.
-
-## 4. Test the workflow
-
-1. Open the homepage. The **Learn about the RAG** card opens your provided SharePoint resource in a new tab. Check SharePoint permissions allow evaluators to access it.
-2. Click **Evaluate AI responses**. Enter initials, name, email, affiliation, and acknowledge the notice.
-3. Score response 01, **Save & next**, and confirm progress advances. Reload, reopen evaluation, and confirm prior ratings are restored on the same browser/device.
-4. Repeat for 30. Review and submit; submitted ratings become read-only.
-5. See data in Cloudflare Dashboard → D1 → `sdsu-rag-human-eval`.
-
-## 5. Export stored data
-
-### Individual, model-blinded ratings (no names or emails)
-
-From `worker/`:
+From `worker/` run:
 
 ```powershell
-npx wrangler d1 execute sdsu-rag-human-eval --remote --command "SELECT participant_id, position, correctness, groundedness, completeness, relevance, comment, updated_at FROM ratings ORDER BY participant_id, position;" --json > ratings_export.json
+npx wrangler d1 execute sdsu-rag-human-eval --remote --json --command "SELECT participant_id, position, correctness, groundedness, completeness, relevance, comment, updated_at FROM ratings ORDER BY participant_id, position" > ratings_export.json
 ```
 
-### Completed evaluator counts
+Then match the exported `position` to private response IDs and actual LLMs:
 
 ```powershell
-npx wrangler d1 execute sdsu-rag-human-eval --remote --command "SELECT COUNT(*) AS completed FROM participants WHERE submitted_at IS NOT NULL;"
+python scripts\export_join.py --ratings worker\ratings_export.json --mapping private_mapping_DO_NOT_PUBLISH.json --model-key "D:\Hydrology_SE\human\human_judge_10_model_key.json" --out merged_human_ratings.csv
 ```
 
-To identify the generating model for each score: join exported `position` to `private_mapping_DO_NOT_PUBLISH.json` (`position` → `sn` + `response_id`), then join to your original `human_judge_10_model_key.json` (`sn` + `response_id` → actual model). Keep both mapping files restricted to your research team. Remember to filter to **submitted** participants when doing final analysis; ratings from unfinished sessions will also be stored in D1.
+The resulting CSV has one row per participant × response, including the actual LLM model (kept private until after judging). The output belongs in a protected local folder, **not on GitHub Pages**.
 
-## Privacy and limitations
+## Privacy and deployment notes
 
-- **Names/emails are personally identifying**, and initials are not anonymous. The site stores them in D1, separately from evaluation ratings, joined via `participant_id`. Access to Cloudflare's project must be restricted. Configure appropriate institutional review, consent, data retention, and privacy wording *before* enrolling participants.
-- A resume token is stored in **the evaluator's browser localStorage**. Treat it as a password; anyone who has it can view/edit that evaluator's unsubmitted ratings. Losing browser storage means they cannot resume without administrator intervention. Avoid shared devices, and do not collect on untrusted kiosks.
-- This version has no email confirmation, CAPTCHA, participant invitation codes, backup recovery, or reviewer sign-in. For an open public study, add Cloudflare Turnstile plus server-side rate limiting and invitation codes to mitigate unwanted submissions.
-- The site does **not** automatically sync existing Qualtrics survey results. It is a separate evaluation collection system.
-- Ensure Cloudflare D1 and GitHub Pages terms and your university data-security requirements allow this use, especially when collecting names and email addresses.
-
-## Files
-
-```
-sdsu-rag-human-eval/
-├─ frontend/
-│  ├─ index.html
-│  ├─ style.css
-│  ├─ app.js
-│  ├─ config.js
-│  └─ data/evaluations.json  # generated real blinded items
-├─ worker/
-│  ├─ src.js
-│  ├─ schema.sql
-│  └─ wrangler.toml
-├─ scripts/build_packet.py
-├─ .gitignore
-└─ README.md
-```
-
-### Automatic mapping script
-
-After exporting ratings as JSON, run:
-
-```powershell
-python scripts\export_join.py --ratings ratings_export.json --mapping private_mapping_DO_NOT_PUBLISH.json --model-key "D:\Hydrology_SE\human\human_judge_10_model_key.json" --out merged_human_ratings.csv
-```
-
-This produces a research analysis CSV with `participant_id`, original question number, generator `model`, and the four human scores. Store the joined result privately.
+- This system collects identifying information. Confirm the human-subject research/IRB and data handling requirements with SDSU before distributing a public survey.
+- Cloudflare CORS restrictions are **not** an anti-spam or invitation system. The included Worker is a lightweight pilot, without rate limits, invitation verification, or abuse mitigation; add Cloudflare Turnstile/invitations for public high-volume deployment.
+- Local browser session tokens allow resume on the same device; people can lose access if storage is erased. Session tokens must be protected as credentials.
+- The page does **not** automatically submit until the evaluator explicitly finishes. Ratings are saved to D1 after each Save all 3 click.
+- Never commit `private_mapping_DO_NOT_PUBLISH.json`, model keys, GPT-OSS judgments, participant exports, or D1 credentials.

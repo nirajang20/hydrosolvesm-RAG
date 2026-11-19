@@ -1,0 +1,8 @@
+private_mapping_DO_NOT_PUBLISH.json
+*model_key*.json
+*judge_results*.json
+*judge_scores*.csv
+.env
+.dev.vars
+node_modules/
+.DS_Store
